@@ -1,8 +1,8 @@
 """Server utils for CheckIt"""
 
-from checkit.server.api import create_app
+from checkit.server import api
 
 def start_app():
     """Start Flask application"""
-    app = create_app()
+    app = api.get_app()
     app.run()
