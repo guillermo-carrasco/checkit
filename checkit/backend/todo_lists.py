@@ -24,6 +24,7 @@ class TodoItem(sql.Base):
     """Object to represent a TodoItem within a TODO list"""
 
     __tablename__ = 'todo_items'
+
     id = Column(UUID, primary_key=True)
     todo_list_id = Column(UUID, ForeignKey("todo_lists.id"), nullable=False)
     description = Column(String(100), nullable=False)
@@ -61,3 +62,25 @@ class TodoListsStore(sql.SQLBackend):
     def get_user_todo_list(self, session, list_id):
         todo_list = session.query(TodoList).filter_by(id=list_id).first()
         return todo_list
+
+    @sql.with_own_session
+    def get_list_items(self, session, list_id):
+        items = session.query(TodoItem).filter_by(todo_list_id=list_id)
+        return items
+
+    @sql.with_own_session
+    def create_item(self, session, item_data):
+        item = TodoItem(**item_data)
+        item.id = str(uuid.uuid4())
+        item.checked = False
+        session.add(item)
+        session.commit()
+
+        return item
+
+    @sql.with_own_session
+    def update_item(self, session, item_data):
+        item = session.query(TodoItem).filter_by(id=item_data.id).update(item_data)
+        session.commit()
+
+        return item
