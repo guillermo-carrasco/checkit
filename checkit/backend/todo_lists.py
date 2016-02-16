@@ -47,3 +47,17 @@ class TodoListsStore(sql.SQLBackend):
     def get_todo_lists(self, session, user_id):
         td_lists = session.query(TodoList).filter_by(user_id=user_id)
         return td_lists
+
+    @sql.with_own_session
+    def create_todo_list(self, session, list_data):
+        todo_list = TodoList(**list_data)
+        todo_list.id = str(uuid.uuid4())
+        session.add(todo_list)
+        session.commit()
+
+        return todo_list
+
+    @sql.with_own_session
+    def get_user_todo_list(self, session, list_id):
+        todo_list = session.query(TodoList).filter_by(id=list_id).first()
+        return todo_list

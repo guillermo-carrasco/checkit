@@ -9,4 +9,3 @@ def setup_stores(db_url):
     """Initialize backend stores"""
     users.setup(db_url)
     todo_lists.setup(db_url)
-    todo_lists.bootstrap()

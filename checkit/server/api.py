@@ -13,6 +13,7 @@ def hello_world():
 
 @app.route('/v1/users', methods=['GET', 'POST'])
 def get_users():
+    """ Get a list of users or create a new user"""
     if request.method == 'GET':
         us = users.get_users()
         return jsonify({"users": [user.to_dict() for user in us]})
@@ -23,16 +24,26 @@ def get_users():
 
 @app.route('/v1/users/<user_id>')
 def get_user(user_id):
+    """Get a specific user"""
     user = users.get_user(user_id)
     if user is not None:
         return jsonify({'user': user.to_dict()})
     else:
         return jsonify({})
 
-@app.route('/v1/users/<user_id>/lists')
+@app.route('/v1/users/<user_id>/lists', methods=['GET', 'POST'])
 def get_user_todo_lists(user_id):
-    td_lists = todo_lists.get_todo_lists(user_id)
-    if td_lists is not None:
+    """Get all user's lists or create a new Todo list"""
+    if request.method == 'GET':
+        td_lists = todo_lists.get_todo_lists(user_id)
         return jsonify({'lists': [l.to_dict() for l in td_lists]})
     else:
-        return jsonify({})
+        list_data = request.json
+        todo_list = todo_lists.create_todo_list(list_data)
+        return jsonify(todo_list.to_dict())
+
+@app.route('/v1/users/<user_id>/lists/<list_id>')
+def get_user_todo_list(user_id, list_id):
+    """Get a user's concrete TODO list"""
+    td_list = todo_lists.get_user_todo_list(list_id)
+    return jsonify({'list': td_list.to_dict()})
