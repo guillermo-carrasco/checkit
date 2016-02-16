@@ -1,3 +1,5 @@
+import uuid
+
 from sqlalchemy import Column
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.types import String
@@ -29,5 +31,18 @@ class UsersStore(sql.SQLBackend):
     @sql.with_own_session
     def get_users(self, session):
         users = session.query(User).all()
-        print users
         return users
+
+    @sql.with_own_session
+    def get_user(self, session, user_id):
+        user = session.query(User).filter_by(id=user_id).first()
+        return user
+
+    @sql.with_own_session
+    def create_user(self, session, user_data):
+        user = User(**user_data)
+        user.id = str(uuid.uuid4())
+        session.add(user)
+        session.commit()
+        
+        return user
