@@ -1,3 +1,2 @@
 Flask
 sqlalchemy
-flask_sqlalchemy
