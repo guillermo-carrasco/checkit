@@ -43,7 +43,7 @@ def get_user_todo_lists(user_id):
         return jsonify({'lists': [l.to_dict() for l in td_lists]})
     else:
         list_data = request.json
-        todo_list = todo_lists.create_todo_list(list_data)
+        todo_list = todo_lists.create_todo_list(list_data, user_id)
         return jsonify(todo_list.to_dict())
 
 
@@ -62,7 +62,7 @@ def get_list_items(user_id, list_id):
         return jsonify({"items": [item.to_dict() for item in items]})
     else:
         item_data = request.json
-        item = todo_lists.create_item(item_data)
+        item = todo_lists.create_item(list_id, item_data)
         return jsonify(item.to_dict())
 
 

@@ -50,9 +50,10 @@ class TodoListsStore(sql.SQLBackend):
         return td_lists
 
     @sql.with_own_session
-    def create_todo_list(self, session, list_data):
+    def create_todo_list(self, session, user_id, list_data):
         todo_list = TodoList(**list_data)
         todo_list.id = str(uuid.uuid4())
+        todo_list.user_id = user_id
         session.add(todo_list)
         session.commit()
 
@@ -69,9 +70,10 @@ class TodoListsStore(sql.SQLBackend):
         return items
 
     @sql.with_own_session
-    def create_item(self, session, item_data):
+    def create_item(self, session, todo_list_id, item_data):
         item = TodoItem(**item_data)
         item.id = str(uuid.uuid4())
+        item.todo_list_id = todo_list_id
         item.checked = False
         session.add(item)
         session.commit()

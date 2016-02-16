@@ -1,0 +1,13 @@
+{
+    "user": {
+        "name": "test_user"
+    },
+
+    "list": {
+        "description": "TODOs for this TODO app"
+    },
+
+    "item": {
+        "description": "Write an awesome app"
+    }
+}
