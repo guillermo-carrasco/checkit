@@ -68,7 +68,10 @@ def get_user_todo_lists(user_id):
         return jsonify({'lists': [l.to_dict() for l in td_lists]})
     else:
         list_data = request.json
-        todo_list = todo_lists.create_todo_list(list_data, user_id)
+        try:
+            todo_list = todo_lists.create_todo_list(list_data, user_id)
+        except:
+            raise InvalidAPIUsage("Wrong or incomplete todo_list data")
         return jsonify(todo_list.to_dict())
 
 
