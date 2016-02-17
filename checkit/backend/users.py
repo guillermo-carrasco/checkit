@@ -12,7 +12,7 @@ class User(sql.Base):
     __tablename__ = 'users'
 
     id = Column(UUID, primary_key=True)
-    name = Column(String(80), unique=True)
+    name = Column(String(80), nullable=False)
 
     def to_dict(self):
         keys = self.__table__.c.keys()
@@ -44,5 +44,5 @@ class UsersStore(sql.SQLBackend):
         user.id = str(uuid.uuid4())
         session.add(user)
         session.commit()
-        
+
         return user

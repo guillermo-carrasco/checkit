@@ -7,6 +7,28 @@ from checkit.backend import users, todo_lists
 
 app = Flask(__name__)
 
+class InvalidAPIUsage(Exception):
+    status_code = 400
+
+    def __init__(self, message, status_code=None, payload=None):
+        Exception.__init__(self)
+        self.message = message
+        if status_code is not None:
+            self.status_code = status_code
+        self.payload = payload
+
+    def to_dict(self):
+        rv = dict(self.payload or ())
+        rv['message'] = self.message
+        return rv
+
+@app.errorhandler(InvalidAPIUsage)
+def handle_invalid_usage(error):
+    response = jsonify(error.to_dict())
+    response.status_code = error.status_code
+    return response
+
+
 @app.route('/')
 def hello_world():
     # XXX: If user authenticateed --> Load its lists, otherwise go to /login
@@ -21,7 +43,10 @@ def get_users():
         return jsonify({"users": [user.to_dict() for user in us]})
     else:
         user_data = request.json
-        user = users.create_user(user_data)
+        try:
+            user = users.create_user(user_data)
+        except:
+            raise InvalidAPIUsage('Wrong or incomplete user data', status_code=400)
         return jsonify(user.to_dict())
 
 

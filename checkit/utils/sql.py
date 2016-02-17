@@ -32,7 +32,12 @@ class SQLBackend(object):
             self.setup_session(db_string)
 
     def with_self_and_session(self, f):
+        """Useful wrapper to manage SQLAlchemy sessions.
 
+        When a method is decorated with @with_self_and_session a new session will be created to execute
+        that method. At the end it will close the session automatically. If any error occurs, the session
+        will be rolled back.
+        """
         @functools.wraps(f)
         def wrapper(*args, **kwargs):
             session = self.Session()
