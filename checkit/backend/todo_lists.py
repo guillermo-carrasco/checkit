@@ -13,7 +13,7 @@ class TodoList(sql.Base):
 
     id = Column(UUID, primary_key=True)
     user_id = Column(UUID, ForeignKey("users.id"), nullable=False)
-    description = Column(String(250))
+    description = Column(String(250), nullable=False)
 
     def to_dict(self):
         keys = self.__table__.c.keys()
@@ -50,7 +50,7 @@ class TodoListsStore(sql.SQLBackend):
         return td_lists
 
     @sql.with_own_session
-    def create_todo_list(self, session, user_id, list_data):
+    def create_todo_list(self, session, list_data, user_id):
         todo_list = TodoList(**list_data)
         todo_list.id = str(uuid.uuid4())
         todo_list.user_id = user_id
@@ -78,6 +78,11 @@ class TodoListsStore(sql.SQLBackend):
         session.add(item)
         session.commit()
 
+        return item
+
+    @sql.with_own_session
+    def get_item(self, session, item_id):
+        item = session.query(TodoItem).filter_by(id=item_id).first()
         return item
 
     @sql.with_own_session

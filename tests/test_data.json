@@ -7,12 +7,7 @@
         "description": "TODOs for this TODO app"
     },
 
-    "items": {
-        "0": {
-            "description": "Write an awesome app"
-        },
-        "1": {
-            "description": "Because you can"
-        }
+    "item": {
+        "description": "Write an awesome app"
     }
 }

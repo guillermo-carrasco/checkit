@@ -1,6 +1,6 @@
 """API endpoints"""
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, make_response
 
 from checkit.backend import users, todo_lists
 
@@ -47,7 +47,7 @@ def get_users():
             user = users.create_user(user_data)
         except:
             raise InvalidAPIUsage('Wrong or incomplete user data', status_code=400)
-        return jsonify(user.to_dict())
+        return make_response(jsonify(user.to_dict()), 201)
 
 
 @app.route('/v1/users/<user_id>')
@@ -72,14 +72,17 @@ def get_user_todo_lists(user_id):
             todo_list = todo_lists.create_todo_list(list_data, user_id)
         except:
             raise InvalidAPIUsage("Wrong or incomplete todo_list data")
-        return jsonify(todo_list.to_dict())
+        return make_response(jsonify(todo_list.to_dict()), 201)
 
 
 @app.route('/v1/users/<user_id>/lists/<list_id>')
 def get_user_todo_list(user_id, list_id):
     """Get a user's concrete TODO list"""
     td_list = todo_lists.get_user_todo_list(list_id)
-    return jsonify({'list': td_list.to_dict()})
+    if td_list is not None:
+        return jsonify({'list': td_list.to_dict()})
+    else:
+        return jsonify({})
 
 
 @app.route('/v1/users/<user_id>/lists/<list_id>/items', methods=['GET', 'POST'])
@@ -90,8 +93,21 @@ def get_list_items(user_id, list_id):
         return jsonify({"items": [item.to_dict() for item in items]})
     else:
         item_data = request.json
-        item = todo_lists.create_item(list_id, item_data)
-        return jsonify(item.to_dict())
+        try:
+            item = todo_lists.create_item(list_id, item_data)
+        except:
+            raise InvalidAPIUsage("Wrong or incomplete item data")
+        return make_response(jsonify(item.to_dict()), 201)
+
+
+@app.route('/v1/users/<user_id>/lists/<list_id>/items/<item_id>')
+def get_item(user_id, list_id, item_id):
+    """Get a TODO list's concrete item"""
+    item_list = todo_lists.get_item(item_id)
+    if td_list is not None:
+        return jsonify({'item': td_list.to_dict()})
+    else:
+        return jsonify({})
 
 
 @app.route('/v1/users/<user_id>/lists/<list_id>/items/<item_id>', methods=['PUT'])

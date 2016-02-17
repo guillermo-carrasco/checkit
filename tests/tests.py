@@ -31,7 +31,7 @@ data_file = codecs.open("./tests/test_data.json", "r", "utf-8").read()
 data_file = json.loads(data_file)
 user_data = data_file['user']
 list_data = data_file['list']
-list_items = data_file['items']
+item_data = data_file['item']
 
 
 ########################
@@ -46,14 +46,30 @@ def create_user(user_data, status=200):
                         expect_errors=status != 200)
     return res
 
-def create_list(list_data, status=200):
+
+def create_list(list_data, user_id, status=200):
     """Create a new todo list throught the API"""
-    list_data = list_data
-    res = app.post_json('/v1/users/{user_id}/lists'.format(user_id=list_data['user_id']),
+    res = app.post_json('/v1/users/{user_id}/lists'.format(user_id=user_id),
                         list_data,
                         status=status,
                         expect_errors=status != 200)
     return res
+
+
+def create_item(item_data, user_id, list_id, status=200):
+    """Create a new item for a todo list through the API"""
+    res = app.post_json('/v1/users/{user_id}/lists/{list_id}/items'.format(user_id=user_id,
+                                                                           list_id=list_id),
+                        item_data,
+                        status=status,
+                        expect_errors= status != 200)
+    return res
+
+
+def compare_dicts(d1, d2):
+    """Checks that d1[k] == d2[k] for all keys k in d1"""
+    for key in d1.keys():
+        nt.assert_equals(d1[key], d2[key])
 
 
 #############
@@ -62,10 +78,12 @@ def create_list(list_data, status=200):
 def test_create_user():
     """Test POST for /v1/users"""
     # Create a new user with all data
-    user = create_user(user_data).json
+    resp = create_user(user_data, status=201)
+    nt.assert_equals(resp.status_code, 201)
+    user = resp.json
 
-    for key in user_data.keys():
-        nt.assert_equals(user[key], user_data[key])
+    # Check data integrity
+    compare_dicts(user_data, user)
     nt.assert_true(user['id'] is not None)
 
     # Create a user with missing data
@@ -82,18 +100,20 @@ def test_get_users():
 
     resp = app.get('/v1/users')
     nt.assert_equals(resp.status_code, 200)
-    nt.assert_is_not_none(resp.json)
+    nt.assert_not_equal(resp.json['users'], [])
 
     user = resp.json.get('users')[0]
 
     # Get user with existing ID
     resp = app.get("/v1/users/{user_id}".format(user_id=user['id']))
     nt.assert_equals(resp.status_code, 200)
+    nt.assert_not_equal(resp.json, {})
+    user = resp.json['user']
 
     # Check the data
-    for key in user_data.keys():
-        nt.assert_equals(user[key], user_data[key])
+    compare_dicts(user_data, user)
     nt.assert_true(user['id'] is not None)
+    user_data['id'] = user['id']
 
     # Get non-existing user
     resp = app.get('/v1/users/{user_id}'.format(user_id=uuid.uuid4()))
@@ -101,11 +121,83 @@ def test_get_users():
     nt.assert_equals(resp.status_code, 200)
 
 
-def test_get_user_lists():
-    """Test GET for /v1/users/<user_id>/lists"""
+def test_create_list():
+    """Test POST for /v1/users/<user_id>/lists"""
 
-    # Get existing user in the database to be referenced by ID
-    user = app.get("/v1/users").json.get('users')[0]
-    user_id = user['id']
-    resp = app.get('/v1/users/{user_id}/lists'.format(user_id=user_id))
+    # Create correct list
+    user_id = user_data['id']
+    resp = create_list(list_data, user_id, status=201)
+    nt.assert_equals(resp.status_code, 201)
+
+    # Check data integrity
+    list_db = resp.json
+    compare_dicts(list_data, list_db)
+    nt.assert_true(list_db['id'] is not None)
+
+    # Create a list with missing data
+    resp = create_list({}, user_id, status=400)
+    nt.assert_equals(resp.status_code, 400)
+
+    # Create list with wrong data
+    resp = create_list({"wrong_field": "crash!"}, user_id, status=400)
+    nt.assert_equals(resp.status_code, 400)
+
+    # Save ID for firther reference
+    list_data['id'] = list_db['id']
+
+
+def test_get_user_lists():
+    """Test GET for /v1/users/<user_id>/lists and /v1/users/<user_id>/lists/<list_id>"""
+
+    # Get all lists (just one in this case)
+    resp = app.get('/v1/users/{user_id}/lists'.format(user_id=user_data['id']))
     nt.assert_equals(resp.status_code, 200)
+    nt.assert_not_equal(resp.json['lists'], [])
+
+    # Get list with existing ID
+    resp = app.get("/v1/users/{user_id}/lists/{list_id}".format(user_id=user_data['id'],
+                                                                list_id=list_data['id']))
+    nt.assert_equals(resp.status_code, 200)
+    nt.assert_not_equal(resp.json, {})
+    list_db = resp.json.get('list')
+
+    # Check the data
+    compare_dicts(list_data, list_db)
+    nt.assert_true(list_db['id'] is not None)
+
+    # Get non-existing list
+    resp = app.get("/v1/users/{user_id}/lists/{list_id}".format(user_id=user_data['id'],
+                                                                list_id=uuid.uuid4()))
+    nt.assert_equals(resp.json, {})
+    nt.assert_equals(resp.status_code, 200)
+
+
+def test_create_list_item():
+    """Test POST for /v1/users/<user_id>/lists/<list_id>/items"""
+
+    # Create correct item
+    user_id = user_data['id']
+    list_id = list_data['id']
+    resp = create_item(item_data, user_id, list_id, status=201)
+    nt.assert_equals(resp.status_code, 201)
+
+    # Check data integrity
+    item_db = resp.json
+    compare_dicts(item_data, item_db)
+    nt.assert_true(item_db['id'] is not None)
+
+    # Create an item with missing data
+    resp = create_item({}, user_id, list_id, status=400)
+    nt.assert_equals(resp.status_code, 400)
+
+    # Create list with wrong data
+    resp = create_item({"wrong_field": "crash!"}, user_id, list_id, status=400)
+    nt.assert_equals(resp.status_code, 400)
+
+    # Save ID for firther reference
+    item_data['id'] = item_db['id']
+
+
+def test_get_put_item():
+    """Test GET and PUT for /v1/users/<user_id>/lists/<list_id>/items/<item_id>"""
+    pass
