@@ -104,8 +104,8 @@ def get_list_items(user_id, list_id):
 def get_item(user_id, list_id, item_id):
     """Get a TODO list's concrete item"""
     item_list = todo_lists.get_item(item_id)
-    if td_list is not None:
-        return jsonify({'item': td_list.to_dict()})
+    if item_list is not None:
+        return jsonify({'item': item_list.to_dict()})
     else:
         return jsonify({})
 
@@ -113,6 +113,9 @@ def get_item(user_id, list_id, item_id):
 @app.route('/v1/users/<user_id>/lists/<list_id>/items/<item_id>', methods=['PUT'])
 def update_item(user_id, list_id, item_id):
     """Modify an existing item"""
-    new_item_data = request.json
+    item_data = request.json
     mod_item = todo_lists.update_item(item_data)
-    return jsonify(mod_item.to_dict())
+    if mod_item is not None:
+        return jsonify(mod_item.to_dict())
+    else:
+        return jsonify({})

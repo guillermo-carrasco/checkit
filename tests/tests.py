@@ -200,4 +200,37 @@ def test_create_list_item():
 
 def test_get_put_item():
     """Test GET and PUT for /v1/users/<user_id>/lists/<list_id>/items/<item_id>"""
-    pass
+
+    # Get all tems from a list
+    resp = app.get("/v1/users/{user_id}/lists/{list_id}/items".format(user_id=user_data['id'],
+                                                                      list_id=list_data['id']))
+    nt.assert_equals(resp.status_code, 200)
+    nt.assert_not_equal(resp.json['items'], [])
+
+    # Get item with existing ID
+    resp = app.get("/v1/users/{user_id}/lists/{list_id}/items/{item_id}".format(user_id=user_data['id'],
+                                                                                list_id=list_data['id'],
+                                                                                item_id=item_data['id']))
+    nt.assert_equals(resp.status_code, 200)
+    nt.assert_not_equal(resp.json, {})
+    item_db = resp.json.get('item')
+
+    # Check the data
+    compare_dicts(item_data, item_db)
+    nt.assert_true(item_db['id'] is not None)
+
+    # Get non-existing item
+    resp = app.get("/v1/users/{user_id}/lists/{list_id}/items/{item_id}".format(user_id=user_data['id'],
+                                                                                list_id=list_data['id'],
+                                                                                item_id=uuid.uuid4()))
+    nt.assert_equals(resp.json, {})
+    nt.assert_equals(resp.status_code, 200)
+
+    # Update an existing item
+    item_db['checked'] = True
+    resp = app.put_json("/v1/users/{user_id}/lists/{list_id}/items/{item_id}".format(user_id=user_data['id'],
+                                                                                     list_id=list_data['id'],
+                                                                                     item_id=uuid.uuid4()),
+                        item_db)
+    nt.assert_equals(resp.status_code, 200)
+    nt.assert_true(resp.json['checked'])

@@ -87,7 +87,11 @@ class TodoListsStore(sql.SQLBackend):
 
     @sql.with_own_session
     def update_item(self, session, item_data):
-        item = session.query(TodoItem).filter_by(id=item_data.id).update(item_data)
+        item = session.query(TodoItem).filter_by(id=item_data.get('id')).update(item_data)
         session.commit()
 
-        return item
+        # If update was successful, 1 should be returned (the number of items updated)
+        if item:
+            return session.query(TodoItem).filter_by(id=item_data.get('id')).first()
+        else:
+            return None
