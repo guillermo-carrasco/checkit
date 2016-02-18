@@ -30,16 +30,27 @@
           <span class="icon-bar"></span>
         </button>
         <a class="navbar-brand" href="https://github.com/guillermo-carrasco/checkit">Check IT</a>
-        <div ng-controller="LoginCtrl">
-          <button ng-click="authenticate('github')">Sign in with GitHub</button>
-        </div>
       </div>
     </div>
   </div>
 
   <div class="container" id="lists_container">
 
-    <div class="col-md-12">
+    <!-- Show log in button if user_id is not defined -->
+    <div ng-controller="LoginCtrl" ng-show="!listsCtrl.user_id">
+      <div id="welcome">
+        <h1>Welcome to CheckIT!</h1>
+        <p>
+          With this web app, you can create TODO lists. Your lists will be saved and ready for the
+          next time you come!<br /> <br />
+          Sign in with your GitHub account and give it a try!
+        </p>
+      </div>
+      <button ng-click="authenticate('github')" class="btn btn-primary btn-lg btn-token col-md-12">Sign in with GitHub</button>
+    </div>
+
+    <!--If user is logged in, then load the notes-->
+    <div class="col-md-12" ng-show="listsCtrl.user_id">
       <!--Add new todo list-->
       <form id="todo-list-form" ng-submit="listsCtrl.addTodoList()" class="newTodoList">
         <input id="new-todo-list" placeholder="Enter title for a new TODO list" ng-model="listsCtrl.new_todo_list.description" ng-disabled="saving" required autofocus class="form-control">
