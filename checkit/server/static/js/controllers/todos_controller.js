@@ -12,14 +12,23 @@ angular.module('checkit')
       ctrl.lists = data['lists'];
     });
   };
+  this.update_lists();
 
   this.addTodoList = function(user_id) {
     var list_data = {"description": this.new_todo_list.description};
     $http.post('/v1/users/' + user_id + '/lists', list_data).success(function(data){
+      data['items'] = [];
       ctrl.lists.push(data);
     });
     this.new_todo_list = {};
-  }
+  };
+
+  this.delete_list = function(list) {
+    var user_id = list.user_id;
+    $http.delete('/v1/users/' + user_id + '/lists/' + list.id).success(function(data){
+      ctrl.lists.splice(ctrl.lists.indexOf(list), 1);
+    });
+  };
 
   this.addTodoItem = function(user_id, list_data){
     var list_id = list_data['id'];

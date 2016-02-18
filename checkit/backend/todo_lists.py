@@ -15,7 +15,7 @@ class TodoList(sql.Base):
     id = Column(UUID, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     description = Column(String(250), nullable=False)
-    items = relationship("TodoItem")
+    items = relationship("TodoItem", cascade="all, delete-orphan")
 
     def to_dict(self):
         keys = self.__table__.c.keys()
@@ -66,6 +66,14 @@ class TodoListsStore(sql.SQLBackend):
         session.commit()
 
         return todo_list
+
+    @sql.with_own_session
+    def delete_todo_list(self, session, list_id):
+        todo_list = session.query(TodoList).filter_by(id=list_id).first()
+        session.delete(todo_list)
+        session.commit()
+        return True
+
 
     @sql.with_own_session
     def get_user_todo_list(self, session, list_id):

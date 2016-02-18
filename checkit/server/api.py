@@ -83,14 +83,22 @@ def get_user_todo_lists(user_id):
         return make_response(jsonify(todo_list.to_dict()), 201)
 
 
-@app.route('/v1/users/<user_id>/lists/<list_id>')
+@app.route('/v1/users/<user_id>/lists/<list_id>', methods=['GET', 'DELETE'])
 def get_user_todo_list(user_id, list_id):
     """Get a user's concrete TODO list"""
-    td_list = todo_lists.get_user_todo_list(list_id)
-    if td_list is not None:
-        return jsonify({'list': td_list.to_dict()})
+    if request.method == 'GET':
+        td_list = todo_lists.get_user_todo_list(list_id)
+        if td_list is not None:
+            return jsonify({'list': td_list.to_dict()})
+        else:
+            return jsonify({})
     else:
-        return jsonify({})
+        removed = todo_lists.delete_todo_list(list_id)
+        if removed:
+            return make_response(jsonify({}), 200)
+        else:
+            return make_response(jsonify({'message': 'Could not remove the list'}), 400)
+
 
 
 @app.route('/v1/users/<user_id>/lists/<list_id>/items', methods=['GET', 'POST'])
