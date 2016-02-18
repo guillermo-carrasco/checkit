@@ -18,7 +18,7 @@
 
 </head>
 
-<body>
+<body ng-controller="TodoListController as listsCtrl">
 
   <div class="navbar navbar-inverse navbar-fixed-top">
     <div class="container">
@@ -36,18 +36,30 @@
 
   <div class="container" id="lists_container">
 
+    <div class="col-md-12">
+      <!--Add new todo list-->
+      <form id="todo-list-form" ng-submit="listsCtrl.addTodoList()" class="newTodoList">
+        <input id="new-todo-list" placeholder="Enter title for a new TODO list" ng-model="listsCtrl.new_todo_list.description" ng-disabled="saving" required autofocus class="form-control">
+      </form>
+    </div>
+
     <!-- TODO list layout -->
-    <div class="col-md-6 col-md-offset-3">
+    <div class="col-md-6 col-md-offset-3" ng-repeat="list in listsCtrl.lists" id={{list.id}} user_id={{list.user_id}}>
       <div class="panel panel-info todolist">
-        <div class="panel-heading">TODO list title</div>
+        <div class="panel-heading"> {{list.description}} </div>
         <div class="panel-body">
+          <!--Add new todo Item-->
+          <form id="todo-form" ng-submit="listsCtrl.addTodoItem()" class="newTodoItem">
+            <input id="new-todo-item" placeholder="What needs to be done?" ng-model="newTodoItem" ng-disabled="saving" autofocus class="form-control">
+          </form>
+
+          <hr />
+
+          <!--List of todos-->
           <div class="row">
             <div class="col-lg-12">
-              <div class="checkbox">
-                <label><input type="checkbox" value="">Todo item 1 description</label>
-              </div>
-              <div class="checkbox">
-                <label><input type="checkbox" value="">Todo item 2 description</label>
+              <div ng-repeat="item in list.items">
+                <input ng-model="todoItem" type="checkbox" id={{item.id}} list_id={{item.todo_list_id}}/> {{item.description}}
               </div>
             </div>
           </div>
@@ -70,10 +82,11 @@
   ================================================== -->
   <!-- Placed at the end of the document so the pages load faster -->
   <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <script src="/static/js/jquery.min.js"></script>
   <!-- Include all compiled plugins (below), or include individual files as needed -->
-  <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/angular.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+  <script src="/static/js/bootstrap.min.js"></script>
+  <script src="/static/js/angular.min.js"></script>
+  <script src="/static/js/app.js"></script>
+  <script src="/static/js/controllers/todos_controller.js"></script>
 </body>
 </html>

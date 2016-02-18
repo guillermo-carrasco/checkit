@@ -1,2 +1,4 @@
 // Angular js application
-var app = angular.module('checkit', []);
+(function() {
+  var app = angular.module('checkit', []);
+})();

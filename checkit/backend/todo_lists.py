@@ -2,6 +2,7 @@ import uuid
 
 from sqlalchemy import Column, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship, subqueryload
 from sqlalchemy.types import String, Boolean
 
 from checkit.utils import sql
@@ -14,10 +15,14 @@ class TodoList(sql.Base):
     id = Column(UUID, primary_key=True)
     user_id = Column(UUID, ForeignKey("users.id"), nullable=False)
     description = Column(String(250), nullable=False)
+    items = relationship("TodoItem")
 
     def to_dict(self):
         keys = self.__table__.c.keys()
-        return {k: getattr(self, k) for k in keys}
+        todo_list = {k: getattr(self, k) for k in keys}
+        if 'items' in self.__dict__:
+            todo_list['items'] = [item.to_dict() for item in self.items]
+        return todo_list
 
 
 class TodoItem(sql.Base):
@@ -46,7 +51,10 @@ class TodoListsStore(sql.SQLBackend):
 
     @sql.with_own_session
     def get_todo_lists(self, session, user_id):
-        td_lists = session.query(TodoList).filter_by(user_id=user_id)
+        td_lists = session.query(TodoList) \
+                          .options(subqueryload(TodoList.items)) \
+                          .filter_by(user_id=user_id) \
+                          .all()
         return td_lists
 
     @sql.with_own_session
