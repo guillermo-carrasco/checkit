@@ -3,7 +3,7 @@ angular.module('checkit')
 
   this.new_todo_list = {}
   this.lists = [];
-  this.user_id = "56c155bd-5568-4741-87d2-19a63b98822e";
+  this.user_id = null;
 
   // Updates lists attribute of the controller
   var ctrl = this;
@@ -12,7 +12,6 @@ angular.module('checkit')
       ctrl.lists = data['lists'];
     });
   };
-  this.update_lists();
 
   this.addTodoList = function() {
     var list_data = {"description": this.new_todo_list.description};

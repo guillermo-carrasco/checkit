@@ -116,7 +116,7 @@ def test_get_users():
     user_data['id'] = user['id']
 
     # Get non-existing user
-    resp = app.get('/v1/users/{user_id}'.format(user_id=uuid.uuid4()))
+    resp = app.get('/v1/users/{user_id}'.format(user_id=-1))
     nt.assert_equals(resp.json, {})
     nt.assert_equals(resp.status_code, 200)
 

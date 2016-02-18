@@ -1,5 +1,12 @@
 """API endpoints"""
 import os
+import json
+
+import requests
+import jwt
+
+from datetime import datetime, timedelta
+from urlparse import parse_qsl
 
 from flask import Flask, request, jsonify, make_response, render_template
 
@@ -137,6 +144,21 @@ def _reset_db():
 #################
 # Authorization #
 #################
+def create_token(user):
+    payload = {
+        'sub': user.id,
+        'iat': datetime.utcnow(),
+        'exp': datetime.utcnow() + timedelta(days=14)
+    }
+    token = jwt.encode(payload, app.config['GITHUB_SECRET'])
+    return token.decode('unicode_escape')
+
+
+def parse_token(req):
+    token = req.headers.get('Authorization').split()[1]
+    return jwt.decode(token, app.config['GITHUB_SECRET'])
+
+
 @app.route('/auth/github', methods=['POST'])
 def github():
     access_token_url = 'https://github.com/login/oauth/access_token'
@@ -158,36 +180,12 @@ def github():
     r = requests.get(users_api_url, params=access_token, headers=headers)
     profile = json.loads(r.text)
 
-    # Step 3. (optional) Link accounts.
-    if request.headers.get('Authorization'):
-        user = User.query.filter_by(github=profile['id']).first()
-        if user:
-            response = jsonify(message='There is already a GitHub account that belongs to you')
-            response.status_code = 409
-            return response
-
-        payload = parse_token(request)
-
-        user = User.query.filter_by(id=payload['sub']).first()
-        if not user:
-            response = jsonify(message='User not found')
-            response.status_code = 400
-            return response
-
-        u = User(github=profile['id'], display_name=profile['name'])
-        db.session.add(u)
-        db.session.commit()
-        token = create_token(u)
-        return jsonify(token=token)
-
-    # Step 4. Create a new account or return an existing one.
-    user = User.query.filter_by(github=profile['id']).first()
+    # Step 3. Create a new account or return an existing one.
+    user = users.get_user(profile['id'])
     if user:
         token = create_token(user)
         return jsonify(token=token)
-
-    u = User(github=profile['id'], display_name=profile['name'])
-    db.session.add(u)
-    db.session.commit()
-    token = create_token(u)
-    return jsonify(token=token)
+    else:
+        user = users.create_user({'id': profile['id'], 'name': profile['name']})
+        token = create_token(user)
+        return jsonify(token=token)

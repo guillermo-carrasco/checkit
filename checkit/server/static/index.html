@@ -30,6 +30,9 @@
           <span class="icon-bar"></span>
         </button>
         <a class="navbar-brand" href="https://github.com/guillermo-carrasco/checkit">Check IT</a>
+        <div ng-controller="LoginCtrl">
+          <button ng-click="authenticate('github')">Sign in with GitHub</button>
+        </div>
       </div>
     </div>
   </div>
@@ -87,6 +90,8 @@
   <script src="/static/js/bootstrap.min.js"></script>
   <script src="/static/js/angular.min.js"></script>
   <script src="/static/js/app.js"></script>
+  <script src="/static/js/satellizer.min.js"></script>
   <script src="/static/js/controllers/todos_controller.js"></script>
+  <script src="/static/js/controllers/login_controller.js"></script>
 </body>
 </html>

@@ -1,8 +1,7 @@
 import uuid
 
 from sqlalchemy import Column
-from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.types import String
+from sqlalchemy.types import String, Integer
 
 from checkit.utils import sql
 
@@ -11,7 +10,7 @@ class User(sql.Base):
 
     __tablename__ = 'users'
 
-    id = Column(UUID, primary_key=True)
+    id = Column(Integer, primary_key=True)
     name = Column(String(80), nullable=False)
 
     def to_dict(self):
@@ -41,7 +40,6 @@ class UsersStore(sql.SQLBackend):
     @sql.with_own_session
     def create_user(self, session, user_data):
         user = User(**user_data)
-        user.id = str(uuid.uuid4())
         session.add(user)
         session.commit()
 
