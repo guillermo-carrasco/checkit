@@ -184,8 +184,8 @@ def github():
     user = users.get_user(profile['id'])
     if user:
         token = create_token(user)
-        return jsonify(token=token)
+        return jsonify(token=token, user_id=user.id)
     else:
         user = users.create_user({'id': profile['id'], 'name': profile['name']})
         token = create_token(user)
-        return jsonify(token=token)
+        return jsonify(token=token, user_id=user.id)
