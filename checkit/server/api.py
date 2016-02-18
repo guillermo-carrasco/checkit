@@ -1,11 +1,12 @@
 """API endpoints"""
+import os
 
-from flask import Flask, request, jsonify, make_response
+from flask import Flask, request, jsonify, make_response, render_template
 
 from checkit.backend import users, todo_lists
 
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='/static')
 
 class InvalidAPIUsage(Exception):
     status_code = 400
@@ -22,6 +23,7 @@ class InvalidAPIUsage(Exception):
         rv['message'] = self.message
         return rv
 
+
 @app.errorhandler(InvalidAPIUsage)
 def handle_invalid_usage(error):
     response = jsonify(error.to_dict())
@@ -30,9 +32,8 @@ def handle_invalid_usage(error):
 
 
 @app.route('/')
-def hello_world():
-    # XXX: If user authenticateed --> Load its lists, otherwise go to /login
-    return 'Hello, World!'
+def landing_page():
+    return render_template('index.html')
 
 
 @app.route('/v1/users', methods=['GET', 'POST'])
