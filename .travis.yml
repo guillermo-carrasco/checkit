@@ -10,7 +10,7 @@ install:
 
 script:
     # command to run tests and collect test coverage
-    - py.test --flakes --cov-report html --cov checkit tests/
+    - py.test --cov-report html --cov checkit tests/
 
 notifications:
     email: false
