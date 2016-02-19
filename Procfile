@@ -1,2 +1,2 @@
 
-web: gunicorn checkit.server.start_app --log-file=-
+web: gunicorn checkit.server:start_app --log-file=-

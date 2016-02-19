@@ -12,7 +12,7 @@ install:
 
 script:
     # command to run tests and collect test coverage
-    - py.test --cov-report html --cov checkit tests/test.py
+    - py.test --cov-report html --cov checkit tests/tests.py
 
 notifications:
     email: false
