@@ -3,7 +3,7 @@
   var app = angular.module('checkit', ['satellizer'])
     .config(function($authProvider){
       $authProvider.github({
-        clientId: '86d321052fddc2afcc16'
+        clientId: 'c0d6b84e7bd977d139a0'
       });
     });
 })();
