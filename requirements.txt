@@ -4,3 +4,4 @@ WebTest
 nose
 requests
 jwt
+pytest-cov
