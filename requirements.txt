@@ -3,7 +3,7 @@ sqlalchemy
 WebTest
 nose
 requests
-jwt
+PyJWT
 pytest-cov
 psycopg2
 gunicorn
