@@ -5,12 +5,14 @@ python:
     - "2.7"
 
 install:
+    # Install coveralls
+    - pip install coveralls
     # install package + executables
     - pip install --editable .
 
 script:
     # command to run tests and collect test coverage
-    - py.test --cov-report html --cov checkit tests/
+    - py.test --cov-report html --cov checkit tests/test.py
 
 notifications:
     email: false
