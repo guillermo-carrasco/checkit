@@ -12,7 +12,6 @@ angular.module('checkit')
       ctrl.lists = data['lists'];
     });
   };
-  this.update_lists();
 
   this.addTodoList = function(user_id) {
     var list_data = {"description": this.new_todo_list.description};
@@ -36,6 +35,17 @@ angular.module('checkit')
     $http.post('/v1/users/' + user_id + '/lists/' + list_id + '/items', item_data).success(function(data){
       list_data['items'].push(data);
       ctrl.new_item[list_id] = '';
+    });
+  };
+
+  this.updateItem = function(user_id, list, item) {
+    // Get item's list index, and change the attribute in the item
+    var l_index = ctrl.lists.indexOf(list);
+    var i_index = ctrl.lists[l_index]['items'].indexOf(item);
+    ctrl.lists[l_index]['items'][i_index].checked = !ctrl.lists[l_index]['items'][i_index].checked;
+
+    $http.put('/v1/users/' + user_id + '/lists/' + item['todo_list_id'] + '/items/' + item['id'], item).success(function(data){
+      console.log("Item updated correctly");
     });
   };
 

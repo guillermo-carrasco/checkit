@@ -54,7 +54,7 @@
       <div class="col-md-12" ng-show="user_id">
         <!--Add new todo list-->
         <form id="todo-list-form" ng-submit="listsCtrl.addTodoList(user_id)" class="newTodoList">
-          <input id="new-todo-list" placeholder="Enter title for a new TODO list" ng-model="listsCtrl.new_todo_list.description" ng-disabled="saving" required autofocus class="form-control">
+          <input id="new-todo-list" placeholder="Enter title for a new TODO list" ng-model="listsCtrl.new_todo_list.description" required autofocus class="form-control">
         </form>
       </div>
 
@@ -65,7 +65,7 @@
           <div class="panel-body">
             <!--Add new todo Item-->
             <form id="todo-form" ng-submit="listsCtrl.addTodoItem(user_id, list)" class="newTodoItem">
-              <input id="new-todo-item" placeholder="What needs to be done?" ng-model="listsCtrl.new_item[list.id]" ng-disabled="saving" required autofocus class="form-control">
+              <input id="new-todo-item" placeholder="What needs to be done?" ng-model="listsCtrl.new_item[list.id]" required autofocus class="form-control">
             </form>
 
             <hr />
@@ -74,7 +74,11 @@
             <div class="row">
               <div class="col-lg-12">
                 <div ng-repeat="item in list.items">
-                  <input ng-model="todoItem" type="checkbox" id={{item.id}} list_id={{item.todo_list_id}}/> {{item.description}}
+                  <div ng-class="{'item-checked': item.checked}">
+                    <input ng-model="todoItem" type="checkbox" id={{item.id}} list_id={{item.todo_list_id}} \
+                           ng-change="listsCtrl.updateItem(user_id, list, item)"
+                           ng-checked="item.checked"/> {{item.description}}
+                  </div>
                 </div>
               </div>
             </div>

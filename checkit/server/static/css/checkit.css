@@ -11,3 +11,8 @@
 .btn-token {
     margin-top: 30px;
 }
+
+.item-checked {
+    text-decoration: line-through;
+    color: #34495e;
+}
