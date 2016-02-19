@@ -12,6 +12,7 @@ LOG = logging.getLogger(__name__)
 
 
 def with_own_session(f):
+    """Decorator to provide a new SQLAlchemy session to the method wrapped"""
     def wrapper(self, *args, **kwargs):
         return self.with_self_and_session(f)(self, *args, **kwargs)
     return wrapper
@@ -55,11 +56,8 @@ class SQLBackend(object):
         self._create_engine(db_string)
         self.Session.configure(bind=self.engine)
 
-    def flush(self):
-        for tbl in reversed(self.Base.metadata.sorted_tables):
-            self.engine.execute(tbl.delete())
-
     def reset(self):
+        """Reset all tables"""
         self.Base.metadata.drop_all(bind=self.engine)
         self.Base.metadata.create_all(bind=self.engine)
 
@@ -67,7 +65,7 @@ class SQLBackend(object):
         self.Base.metadata.create_all(bind=self.engine)
 
     def bootstrap(self):
-        ''' Creates database and tables'''
+        """Creates database and tables"""
         database = self.engine.url.database
         engine = create_engine(self.engine.url)
         connection = engine.connect()
@@ -89,12 +87,6 @@ class SQLBackend(object):
             return
 
         self.engine = create_engine(db_string, echo=False)
-
-    def ping(self):
-        session = self.Session()
-        ping_response = session.execute('select 1').fetchall()
-        session.close()
-        return ping_response
 
 
 Base = create_declarative_base()

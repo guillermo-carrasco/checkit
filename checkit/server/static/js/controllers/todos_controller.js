@@ -1,12 +1,15 @@
 angular.module('checkit')
 .controller('TodoListController', ['$http', function($http) {
 
+  // Two-way bingin objects for the front end. When these are updated, so it is the front page.
   this.new_todo_list = {}
   this.new_item = {}
   this.lists = [];
 
-  // Updates lists attribute of the controller
+  // copy the scope to an external variable to be used within $http calls
   var ctrl = this;
+
+  // Update array of lists
   this.update_lists = function(user_id) {
     $http.get('/v1/users/' + user_id + '/lists').success(function(data){
       ctrl.lists = data['lists'];
@@ -16,6 +19,7 @@ angular.module('checkit')
   this.addTodoList = function(user_id) {
     var list_data = {"description": this.new_todo_list.description};
     $http.post('/v1/users/' + user_id + '/lists', list_data).success(function(data){
+      // Update local array of lists after creating the new list
       data['items'] = [];
       ctrl.lists.push(data);
     });
@@ -25,6 +29,7 @@ angular.module('checkit')
   this.delete_list = function(list) {
     var user_id = list.user_id;
     $http.delete('/v1/users/' + user_id + '/lists/' + list.id).success(function(data){
+      // Remove list from the array of lists
       ctrl.lists.splice(ctrl.lists.indexOf(list), 1);
     });
   };

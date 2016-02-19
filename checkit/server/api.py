@@ -16,6 +16,7 @@ from checkit.backend import users, todo_lists, setup_stores
 app = Flask(__name__, static_url_path='/static')
 
 class InvalidAPIUsage(Exception):
+    """Handle invalid API calls"""
     status_code = 400
 
     def __init__(self, message, status_code=None, payload=None):

@@ -29,16 +29,19 @@ class UsersStore(sql.SQLBackend):
 
     @sql.with_own_session
     def get_users(self, session):
+        """Retrieve ll users from the database"""
         users = session.query(User).all()
         return users
 
     @sql.with_own_session
     def get_user(self, session, user_id):
+        """Retrun user with id <user_id> from the database"""
         user = session.query(User).filter_by(id=user_id).first()
         return user
 
     @sql.with_own_session
     def create_user(self, session, user_data):
+        """Create a new user in the database"""
         user = User(**user_data)
         session.add(user)
         session.commit()

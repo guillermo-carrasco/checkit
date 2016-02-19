@@ -1,3 +1,7 @@
+/* Angularjs controller to manage loging with GitHub
+
+https://github.com/sahat/satellizer
+*/
 angular.module('checkit')
   .controller('LoginCtrl', function($scope, $auth) {
     this.user_id = null;
@@ -6,6 +10,7 @@ angular.module('checkit')
     $scope.authenticate = function(provider) {
       $auth.authenticate(provider).then(function(response){
         loginCtrl.user_id = response.data.user_id;
+        // Update TODO lists once we have the user_id
         loginCtrl.listsCtrl.update_lists(response.data.user_id);
       });
     };

@@ -15,6 +15,7 @@ class TodoList(sql.Base):
     id = Column(UUID, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     description = Column(String(250), nullable=False)
+    # Define relationship with TodoItem so that items get deleted on cascade and retrieved with the list
     items = relationship("TodoItem", cascade="all, delete-orphan")
 
     def to_dict(self):
@@ -41,7 +42,7 @@ class TodoItem(sql.Base):
 
 
 class TodoListsStore(sql.SQLBackend):
-    """Helper clase to manage TodoLists(s) common opperations"""
+    """Helper clase to manage TODO list(s) common opperations"""
 
     def __init__(self):
         pass
@@ -51,6 +52,7 @@ class TodoListsStore(sql.SQLBackend):
 
     @sql.with_own_session
     def get_todo_lists(self, session, user_id):
+        """Retrieve all TODO list from the user <user_id> from the database"""
         td_lists = session.query(TodoList) \
                           .options(subqueryload(TodoList.items)) \
                           .filter_by(user_id=user_id) \
@@ -59,6 +61,7 @@ class TodoListsStore(sql.SQLBackend):
 
     @sql.with_own_session
     def create_todo_list(self, session, list_data, user_id):
+        """Create a TODO list associated to the user <user_id>"""
         todo_list = TodoList(**list_data)
         todo_list.id = str(uuid.uuid4())
         todo_list.user_id = user_id
@@ -69,6 +72,7 @@ class TodoListsStore(sql.SQLBackend):
 
     @sql.with_own_session
     def delete_todo_list(self, session, list_id):
+        """Delete an existing TODO list"""
         todo_list = session.query(TodoList).filter_by(id=list_id).first()
         session.delete(todo_list)
         session.commit()
@@ -77,16 +81,19 @@ class TodoListsStore(sql.SQLBackend):
 
     @sql.with_own_session
     def get_user_todo_list(self, session, list_id):
+        """Retrieve list with id <list_id>"""
         todo_list = session.query(TodoList).filter_by(id=list_id).first()
         return todo_list
 
     @sql.with_own_session
     def get_list_items(self, session, list_id):
+        """Return all items from the list with id <list_id>"""
         items = session.query(TodoItem).filter_by(todo_list_id=list_id)
         return items
 
     @sql.with_own_session
     def create_item(self, session, todo_list_id, item_data):
+        """Create new item for the list with id <todo_list_id>"""
         item = TodoItem(**item_data)
         item.id = str(uuid.uuid4())
         item.todo_list_id = todo_list_id
@@ -98,11 +105,13 @@ class TodoListsStore(sql.SQLBackend):
 
     @sql.with_own_session
     def get_item(self, session, item_id):
+        """Get item <item_id> from the database"""
         item = session.query(TodoItem).filter_by(id=item_id).first()
         return item
 
     @sql.with_own_session
     def update_item(self, session, item_data):
+        """Update item from the database using <item_data> data"""
         item = session.query(TodoItem).filter_by(id=item_data.get('id')).update(item_data)
         session.commit()
 
