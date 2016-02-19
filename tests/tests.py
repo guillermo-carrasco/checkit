@@ -16,7 +16,7 @@ from checkit.backend import setup_stores, users, todo_lists
 ########################
 
 # Create and initialize the test database and the application
-DB_URI = os.environ.get('TEST_DB_URI', 'sqlite:////tmp/checkit_db.db')
+DB_URI = os.environ.get('TEST_DB_URI')
 setup_stores(DB_URI)
 users.bootstrap()
 users.reset()

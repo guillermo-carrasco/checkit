@@ -20,7 +20,7 @@ before_script:
   - psql -c 'create database checkit_test;' -U postgres
 
 env:
-  - TEST_DB_URI=postgresql://postgres@localhost/checkit
+  - TEST_DB_URI=postgresql://postgres@localhost/checkit_test
 
 script:
     # command to run tests and collect test coverage

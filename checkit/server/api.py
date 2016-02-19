@@ -140,7 +140,7 @@ def update_item(user_id, list_id, item_id):
 @app.route('/v1/1000fc1e-56dc-4a7d-add0-a83d1120c5d7')
 def _reset_db():
     """_secret_ endpoint to cleanup and setup the database"""
-    DB_URI = os.environ.get('DB_URI', 'sqlite:////tmp/checkit_db.db')
+    DB_URI = os.environ.get('DB_URI')
     setup_stores(DB_URI)
     users.reset()
     users.bootstrap()
