@@ -5,3 +5,4 @@ nose
 requests
 jwt
 pytest-cov
+psycopg2
