@@ -11,5 +11,6 @@ def start_app():
 
     app.config['GITHUB_SECRET'] = os.environ.get('GITHUB_SECRET')
     app.config['GITHUB_CLIENT'] = os.environ.get('GITHUB_CLIENT')
-    
+
     app.run(debug=True)
+    return app
