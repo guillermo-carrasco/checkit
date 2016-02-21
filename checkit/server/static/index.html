@@ -15,6 +15,18 @@
   <link rel="stylesheet" href="/static/css/starter-template.css">
   <link rel="stylesheet" href="/static/css/checkit.css">
 
+  <!-- Load different javascripts at the beginning so that the DOM can be treated by angular
+  from the beginning
+  ================================================== -->
+  <script src="/static/js/jquery.min.js"></script>
+  <!-- Include all compiled plugins (below), or include individual files as needed -->
+  <script src="/static/js/bootstrap.min.js"></script>
+  <script src="/static/js/angular.min.js"></script>
+  <script src="/static/js/app.js"></script>
+  <script src="/static/js/satellizer.min.js"></script>
+  <script src="/static/js/controllers/todos_controller.js"></script>
+  <script src="/static/js/controllers/login_controller.js"></script>
+
 
 </head>
 
@@ -94,19 +106,5 @@
     <!-- /.TODO list layout -->
 
   </div><!-- /.container -->
-
-
-  <!-- Bootstrap core JavaScript
-  ================================================== -->
-  <!-- Placed at the end of the document so the pages load faster -->
-  <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-  <script src="/static/js/jquery.min.js"></script>
-  <!-- Include all compiled plugins (below), or include individual files as needed -->
-  <script src="/static/js/bootstrap.min.js"></script>
-  <script src="/static/js/angular.min.js"></script>
-  <script src="/static/js/app.js"></script>
-  <script src="/static/js/satellizer.min.js"></script>
-  <script src="/static/js/controllers/todos_controller.js"></script>
-  <script src="/static/js/controllers/login_controller.js"></script>
 </body>
 </html>
