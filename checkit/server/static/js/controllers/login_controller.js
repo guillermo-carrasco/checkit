@@ -5,8 +5,9 @@ https://github.com/sahat/satellizer
 angular.module('checkit')
   .controller('LoginCtrl', function($scope, $auth) {
     // Check if user_id is in local storage, if so, call update lists in listsCtrl
-    $scope.user_id = localStorage.user_id;
-    if ($scope.user_id) {
+    $scope.user_id = null;
+    if (localStorage.user_id) {
+      $scope.user_id = localStorage.user_id;
       $scope.listsCtrl.update_lists($scope.user_id);
     }
 
@@ -18,6 +19,11 @@ angular.module('checkit')
         // Update TODO lists once we have the user_id
         loginCtrl.listsCtrl.update_lists(response.data.user_id);
       });
+    };
+
+    $scope.logOut = function() {
+      localStorage.clear();
+      loginCtrl.user_id = null;
     };
 
   });

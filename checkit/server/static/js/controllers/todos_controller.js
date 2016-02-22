@@ -2,8 +2,8 @@ angular.module('checkit')
 .controller('TodoListController', ['$http', function($http) {
 
   // Two-way bingin objects for the front end. When these are updated, so it is the front page.
-  this.new_todo_list = {}
-  this.new_item = {}
+  this.new_todo_list = {};
+  this.new_item = {};
   this.lists = [];
 
   // copy the scope to an external variable to be used within $http calls

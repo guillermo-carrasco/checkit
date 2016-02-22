@@ -32,24 +32,29 @@
 
 <body ng-controller="TodoListController as listsCtrl">
 
-  <div class="navbar navbar-inverse navbar-fixed-top">
-    <div class="container">
-      <div class="navbar-header">
-        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-          <span class="sr-only">Toggle navigation</span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
-        <a class="navbar-brand" href="https://github.com/guillermo-carrasco/checkit">Check IT</a>
+  <div ng-controller="LoginCtrl">
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="https://github.com/guillermo-carrasco/checkit">Chek IT!</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+            <li ng-click="logOut()" ng-show="user_id"><a href="#">Log out</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
       </div>
-    </div>
-  </div>
+    </nav>
 
-  <div class="container" id="lists_container">
+    <div class="container" id="lists_container">
 
-    <!-- Show log in button if user_id is not defined -->
-    <div ng-controller="LoginCtrl">
+      <!-- Show log in button if user_id is not defined -->
       <div ng-show="!user_id">
         <div id="welcome">
           <h1>Welcome to CheckIT!</h1>
@@ -63,48 +68,51 @@
       </div>
 
       <!--If user is logged in, then load the notes-->
-      <div class="col-md-12" ng-show="user_id">
-        <!--Add new todo list-->
-        <form id="todo-list-form" ng-submit="listsCtrl.addTodoList(user_id)" class="newTodoList">
-          <input id="new-todo-list" placeholder="Enter title for a new TODO list" ng-model="listsCtrl.new_todo_list.description" required autofocus class="form-control">
-        </form>
-      </div>
+      <div ng-show="user_id">
+  
+        <div class="col-md-12">
+          <!--Add new todo list-->
+          <form id="todo-list-form" ng-submit="listsCtrl.addTodoList(user_id)" class="newTodoList">
+            <input id="new-todo-list" placeholder="Enter title for a new TODO list" ng-model="listsCtrl.new_todo_list.description" required autofocus class="form-control">
+          </form>
+        </div>
 
-      <!-- TODO list layout -->
-      <div class="col-md-6 col-md-offset-3" ng-repeat="list in listsCtrl.lists" id={{list.id}} user_id={{list.user_id}}>
-        <div class="panel panel-info todolist">
-          <div class="panel-heading"> {{list.description}} </div>
-          <div class="panel-body">
-            <!--Add new todo Item-->
-            <form id="todo-form" ng-submit="listsCtrl.addTodoItem(user_id, list)" class="newTodoItem">
-              <input id="new-todo-item" placeholder="What needs to be done?" ng-model="listsCtrl.new_item[list.id]" required autofocus class="form-control">
-            </form>
+        <!-- TODO list layout -->
+        <div class="col-md-6 col-md-offset-3" ng-repeat="list in listsCtrl.lists" id={{list.id}} user_id={{list.user_id}}>
+          <div class="panel panel-info todolist">
+            <div class="panel-heading"> {{list.description}} </div>
+            <div class="panel-body">
+              <!--Add new todo Item-->
+              <form id="todo-form" ng-submit="listsCtrl.addTodoItem(user_id, list)" class="newTodoItem">
+                <input id="new-todo-item" placeholder="What needs to be done?" ng-model="listsCtrl.new_item[list.id]" required autofocus class="form-control">
+              </form>
 
-            <hr />
+              <hr />
 
-            <!--List of todos-->
-            <div class="row">
-              <div class="col-lg-12">
-                <div ng-repeat="item in list.items">
-                  <div ng-class="{'item-checked': item.checked}">
-                    <input ng-model="todoItem" type="checkbox" id={{item.id}} list_id={{item.todo_list_id}} \
-                           ng-change="listsCtrl.updateItem(user_id, list, item)"
-                           ng-checked="item.checked"/> {{item.description}}
+              <!--List of todos-->
+              <div class="row">
+                <div class="col-lg-12">
+                  <div ng-repeat="item in list.items">
+                    <div ng-class="{'item-checked': item.checked}">
+                      <input ng-model="todoItem" type="checkbox" id={{item.id}} list_id={{item.todo_list_id}} \
+                             ng-change="listsCtrl.updateItem(user_id, list, item)"
+                             ng-checked="item.checked"/> {{item.description}}
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-          <div class="panel-footer">
-            <div class="btn-group-xs" role="group" aria-label="...">
-              <button type="button" class="btn btn-default" ng-click="listsCtrl.delete_list(list)">Delete List</button>
+            <div class="panel-footer">
+              <div class="btn-group-xs" role="group" aria-label="...">
+                <button type="button" class="btn btn-default" ng-click="listsCtrl.delete_list(list)">Delete List</button>
+              </div>
             </div>
           </div>
         </div>
+        <!-- /.TODO list layout -->
       </div>
-    </div>
-    <!-- /.TODO list layout -->
 
-  </div><!-- /.container -->
+    </div><!-- /.container -->
+  </div>
 </body>
 </html>
