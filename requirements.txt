@@ -1,9 +1,8 @@
 Flask
+GitHub-Flask
 sqlalchemy
 WebTest
 nose
-requests
-PyJWT
 pytest-cov
 psycopg2
 gunicorn

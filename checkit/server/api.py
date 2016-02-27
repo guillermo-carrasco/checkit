@@ -1,19 +1,20 @@
 """API endpoints"""
 import os
-import json
 
-import requests
-import jwt
-
-from datetime import datetime, timedelta
-from urlparse import parse_qsl
-
-from flask import Flask, request, jsonify, make_response, render_template
+from flask import (Flask, g, session, redirect, flash, abort, request, url_for,
+                   jsonify, make_response)
+from flask.ext.github import GitHub
+from sqlalchemy.exc import OperationalError
 
 from checkit.backend import users, todo_lists, setup_stores
+from checkit.utils import config
 
 
 app = Flask(__name__, static_url_path='/static')
+app.config.update(config.get_github_confs())
+app.secret_key = config.get_app_secret()
+
+github = GitHub(app)
 
 class InvalidAPIUsage(Exception):
     """Handle invalid API calls"""
@@ -37,11 +38,6 @@ def handle_invalid_usage(error):
     response = jsonify(error.to_dict())
     response.status_code = error.status_code
     return response
-
-
-@app.route('/')
-def landing_page():
-    return app.send_static_file('index.html')
 
 
 @app.route('/v1/users', methods=['GET', 'POST'])
@@ -153,48 +149,69 @@ def _reset_db():
 #################
 # Authorization #
 #################
-def create_token(user):
-    payload = {
-        'sub': user.id,
-        'iat': datetime.utcnow(),
-        'exp': datetime.utcnow() + timedelta(days=14)
-    }
-    token = jwt.encode(payload, app.config['GITHUB_SECRET'])
-    return token.decode('unicode_escape')
+@app.before_request
+def before_request():
+    """Check if user is loged in and with a valid token on every request"""
+    g.user = None
+    if 'user_token' in session:
+        try:
+            g.user = users.get_user_by_token(session['user_token'])
+        except OperationalError:
+            return None
 
 
-def parse_token(req):
-    token = req.headers.get('Authorization').split()[1]
-    return jwt.decode(token, app.config['GITHUB_SECRET'])
+@github.access_token_getter
+def token_getter():
+    user = g.user
+    if user is not None:
+        return user.gh_token
+    return None
 
 
-@app.route('/auth/github', methods=['POST'])
-def github():
-    access_token_url = 'https://github.com/login/oauth/access_token'
-    users_api_url = 'https://api.github.com/user'
 
-    params = {
-        'client_id': request.json['clientId'],
-        'redirect_uri': request.json['redirectUri'],
-        'client_secret': app.config['GITHUB_SECRET'],
-        'code': request.json['code']
-    }
+@app.route('/')
+def index():
+    if g.user:
+        if g.user.email is None:
+            user_data = github.get('user')
+            g.user.email = user_data['email']
+            g.user.name = user_data['name']
+            users.update_user(g.user.to_dict())
+        return app.send_static_file('app.html')
 
-    # Step 1. Exchange authorization code for access token.
-    r = requests.get(access_token_url, params=params)
-    access_token = dict(parse_qsl(r.text))
-    headers = {'User-Agent': 'Satellizer'}
+    return app.send_static_file('index.html')
 
-    # Step 2. Retrieve information about the current user.
-    r = requests.get(users_api_url, params=access_token, headers=headers)
-    profile = json.loads(r.text)
 
-    # Step 3. Create a new account or return an existing one.
-    user = users.get_user(profile['id'])
-    if user:
-        token = create_token(user)
-        return jsonify(token=token, user_id=user.id)
+@app.route('/login')
+def login():
+    return github.authorize()
+
+
+@app.route('/logout')
+def logout():
+    session.pop('user_token', None)
+    return redirect(url_for('index'))
+
+
+@app.route('/authorized')
+@github.authorized_handler
+def authorized(oauth_token):
+    next_url = request.args.get('next') or url_for('index')
+    if oauth_token is None:
+        flash("Authorization with GitHub failed.")
+        return redirect(next_url)
+
+    user_obj = users.get_user_by_token(oauth_token)
+    if user_obj is None:
+        user_obj = users.create_user({'gh_token': oauth_token})
+
+    session['user_token'] = user_obj.gh_token
+    return redirect(next_url)
+
+
+@app.route('/user')
+def user():
+    if g.user:
+        return jsonify(**g.user.to_dict())
     else:
-        user = users.create_user({'id': profile['id'], 'name': profile['name']})
-        token = create_token(user)
-        return jsonify(token=token, user_id=user.id)
+        return abort(500)

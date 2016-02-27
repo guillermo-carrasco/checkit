@@ -3,7 +3,7 @@ import uuid
 from sqlalchemy import Column, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship, subqueryload
-from sqlalchemy.types import String, Boolean, Integer
+from sqlalchemy.types import String, Boolean
 
 from checkit.utils import sql
 
@@ -13,7 +13,7 @@ class TodoList(sql.Base):
     __tablename__ = 'todo_lists'
 
     id = Column(UUID, primary_key=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    user_id = Column(UUID, ForeignKey("users.id"), nullable=False)
     description = Column(String(250), nullable=False)
     # Define relationship with TodoItem so that items get deleted on cascade and retrieved with the list
     items = relationship("TodoItem", cascade="all, delete-orphan")

@@ -1,4 +1,3 @@
-from checkit.utils import sql, log
 import users as users_backend
 import todo_lists as todo_lists_backend
 

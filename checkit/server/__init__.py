@@ -1,16 +1,12 @@
 """Server utils for CheckIt"""
-import os
-
 from checkit.backend import setup_stores
 from checkit.server.api import app
+from checkit.utils import config
 
 
 """Start and configure Flask application"""
-DB_URI = os.environ.get('DB_URI')
+DB_URI = config.get_db_url()
 setup_stores(DB_URI)
-
-app.config['GITHUB_SECRET'] = os.environ.get('GITHUB_SECRET')
-app.config['GITHUB_CLIENT'] = os.environ.get('GITHUB_CLIENT')
 
 def start_app():
     app.run(debug=True)
